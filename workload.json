@@ -1,0 +1,15 @@
+{
+  "team_name": "ViSiTaLl",
+  "students": [
+    {
+      "first_name": "Mihail",
+      "last_name": "Last",
+      "workload": 0.5
+    },
+    {
+      "first_name": "Friend First",
+      "last_name": "Friend Last",
+      "workload": 0.5
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "team_name": "ViSiTaLl",
+  "students": [
+    {
+      "student_id": "k12342321",
+      "first_name": "Mihail",
+      "last_name": "Last",
+      "email": "k12342321@students.jku.at",
+      "github_user": "no-github-username"
+    },
+    {
+      "student_id": "k11111111",
+      "first_name": "Friend First",
+      "last_name": "Friend Last",
+      "email": "friend@mail.com",
+      "github_user": "friend-github-username"
+    }
+  ]
+}

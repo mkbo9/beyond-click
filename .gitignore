@@ -1,0 +1,14 @@
+# Secrets and API Keys
+.env
+.env.*
+*.pem
+
+# Python / Jupyter
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# OS Junk
+.DS_Store
+Thumbs.db
