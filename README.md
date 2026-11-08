@@ -14,4 +14,3 @@ We are building a binary classification model to predict whether a video's thumb
 *   **Source:** Collected via the YouTube Data API v3.
 *   **Preprocessing:** Each video's views are divided by the median views of the channel's 20 nearest uploads; the top and bottom 20% per channel are labeled. Thumbnails are padded to square and resized to 224×224. Data is split by channel (train on 8, test on 2, rotated) so the model is always evaluated on unseen channels.
 
-test [by M]
