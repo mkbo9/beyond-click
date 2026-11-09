@@ -1,14 +1,32 @@
-# Secrets and API Keys
+# Secrets & Local Config (Kept strictly on this machine)
 .env
 .env.*
-*.pem
+config.yaml
 
-# Python / Jupyter
-__pycache__/
-.ipynb_checkpoints/
+# Python / uv
 .venv/
-venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
 
-# OS Junk
+# Private or regenerable data (Ignore all contents recursively)
+data/**
+models/**
+outputs/**
+logs/**
+
+#  keep all the empty folders visible
+!data/**/
+!models/**/
+!outputs/**/
+!logs/**/
+
+# keep the placeholder files
+!**/.gitkeep
+
+# OS / Editor
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
