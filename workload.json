@@ -4,12 +4,17 @@
     {
       "first_name": "Mihail",
       "last_name": "Last",
-      "workload": 0.5
+      "workload": 0.33
+    },
+    {
+      "first_name": "Mateusz",
+      "last_name": "Marecki",
+      "workload": 0.33
     },
     {
       "first_name": "Friend First",
       "last_name": "Friend Last",
-      "workload": 0.5
+      "workload": 0.33
     }
   ]
 }
