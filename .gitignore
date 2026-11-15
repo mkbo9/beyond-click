@@ -1,7 +1,7 @@
 # Secrets & Local Config (Kept strictly on this machine)
 .env
 .env.*
-config.yaml
+#config.yaml
 
 # Python / uv
 .venv/
@@ -30,3 +30,9 @@ logs/**
 Thumbs.db
 .vscode/
 .idea/
+
+#extra
+docs/*.md
+.fake_run/
+code.zip
+*:Zone.Identifier
