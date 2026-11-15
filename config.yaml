@@ -1,0 +1,57 @@
+# Beyond Click — all settings in one place. Change values here, not in code.
+# do not change them after you have looked at real top/bottom results.
+analysis_version: 1
+
+mode: real                 # real = YouTube Data API + models · fake = offline test data (written to .fake_run/)
+seed: 42
+niche: unboxing
+device: cpu                # cpu 
+
+# --- M1 Collect ---------------------------------------------------------------
+# M0 needs at least 3 channels (M6 tests on channels the model never saw).
+channels: ["@REPLACE_ME_1", "@REPLACE_ME_2", "@REPLACE_ME_3"]
+max_videos_per_channel: 35  # M0: ~35 × 3 ≈ 100 thumbnails · full run: 200
+max_ids_per_channel: 1000   # upper limit of uploads to look through per channel (newest first)
+min_duration_s: 181         # Shorts can be up to 180 s
+min_age_months: 6           # views have mostly settled
+max_age_months: 36
+
+# --- M2 Label -----------------------------------------------------------------
+neighbours: 20              # compare with the 20 uploads closest in time
+top_quantile: 0.80
+bottom_quantile: 0.20
+min_videos_per_channel: 30  # channels with fewer eligible videos are dropped
+
+# --- M3 Group -----------------------------------------------------------------
+clip_model: ViT-B-32
+clip_pretrained: laion2b_s34b_b79k
+batch_size: 32
+pca_dims: 50
+min_cluster_size: 5         # M0 (~100 thumbnails): 5 · full run: 20
+max_ungrouped_share: 0.40   # above this → KMeans fallback
+kmeans_k_range: [3, 12]     # M0: 3–12 · full run: [10, 25]
+channel_dominated_share: 0.60   # a group is "one channel's look" if one channel supplies more than this
+
+# --- M4 Describe --------------------------------------------------------------
+use_vlm: true               # false = skip SmolVLM2, name groups by hand in data/processed/group_names.csv
+vlm_model: HuggingFaceTB/SmolVLM2-2.2B-Instruct
+vlm_image_edge: 384         # one patch per thumbnail (fast)
+vlm_image_splitting: false
+images_per_group: 6
+vlm_prompt: "These YouTube thumbnails belong to one visual group. In under 8 words, name the visual elements they share (people, objects, text, layout, colours)."
+# Each element = [describes it, describes its absence]. CLIP decides which fits better.
+elements:
+  face:           ["a thumbnail showing a person's face", "a thumbnail with no people"]
+  surprised_face: ["a thumbnail of a person with a surprised face", "a thumbnail of a person with a calm face"]
+  big_text:       ["a thumbnail with large bold text", "a thumbnail with no text"]
+  arrow_circle:   ["a thumbnail with a red arrow or circle", "a thumbnail without arrows or circles"]
+  product:        ["a thumbnail showing a product or gadget", "a thumbnail with no product"]
+  product_in_hand: ["a person holding a product in their hands", "a product on a table, no hands"]
+  open_box:       ["an open box or packaging", "no box or packaging"]
+  bright_colours: ["a very colourful, saturated image", "a dull, muted image"]
+element_min_share: 0.05     # elements present in fewer / more thumbnails than this are "uninformative"
+element_max_share: 0.95
+
+# --- M5 Compare ---------------------------------------------------------------
+permutation_n: 5000
+fdr_alpha: 0.10
