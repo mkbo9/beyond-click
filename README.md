@@ -1,7 +1,14 @@
 # AI Project Phase 1
 
+# Beyond Click
+
+Which thumbnail styles and elements appear more often in a channel's top videos than in its bottom ones?
+
+## Status
+Work in progress. The pipeline code runs end to end on synthetic test data (drawn pictures, made-up views). No real data has been collected yet, so there are no results.
+
 ## Task
-We are building a binary classification model to predict whether a video's thumbnail belongs to the top 20% or bottom 20% of its channel's videos, measured by views relative to the channel's usual performance. In addition, we identify and describe recurring thumbnail styles and visual elements (e.g., faces, large text) that appear more often in top-performing videos.
+We are building a binary classification model to predict whether a video's thumbnail belongs to the top 20% or bottom 20% of its channel's videos, measured by views relative to the channel's usual performance. In addition, we identify and describe recurring thumbnail styles and visual elements (e.g., faces, large text) that appear more often in top videos than in bottom videos.
 
 ## Model(s)
 *   **Feature Extractor:** OpenCLIP ViT-B/32 (pretrained, frozen), producing a 512-dimensional embedding per thumbnail.
@@ -10,7 +17,17 @@ We are building a binary classification model to predict whether a video's thumb
 *   **Main Model:** Logistic Regression on CLIP embeddings, evaluated with leave-channels-out cross-validation (GroupKFold) using ROC AUC.
 
 ## Dataset(s)
-*   **Custom Thumbnail Dataset:** About 1,000–1,500 thumbnails with view counts and upload dates from 10 channels in one niche (long-form videos aged 6–36 months).
+*   **Custom Thumbnail Dataset:** About 1,000–1,500 thumbnails with view counts and upload dates from 10 channels in the unboxing niche (long-form videos aged 6–36 months).
 *   **Source:** Collected via the YouTube Data API v3.
 *   **Preprocessing:** Each video's views are divided by the median views of the channel's 20 nearest uploads; the top and bottom 20% per channel are labeled. Thumbnails are padded to square and resized to 224×224. Data is split by channel (train on 8, test on 2, rotated) so the model is always evaluated on unseen channels.
+*   **Not in this repository:** thumbnails, view counts, API keys and run outputs stay local.
 
+## Run the offline test
+Needs Python 3.12 and uv. No API key, no model downloads.
+
+    uv sync
+    uv run python run_pipeline.py --fake
+    uv run pytest
+
+## Limitations
+Association only: a pattern that appears more often in top videos is not shown to cause more views. Topic, title and timing also affect views.
