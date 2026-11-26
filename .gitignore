@@ -1,6 +1,7 @@
 # Secrets & Local Config (Kept strictly on this machine)
 .env
 .env.*
+channels.local.yaml
 #config.yaml
 
 # Python / uv

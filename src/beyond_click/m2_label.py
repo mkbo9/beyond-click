@@ -35,7 +35,7 @@ def run(cfg) -> pd.DataFrame:
         g["label"] = np.where(g["ratio"] >= hi, "top", np.where(g["ratio"] <= lo, "bottom", "middle"))
         parts.append(g)
     if not parts:
-        raise SystemExit("No channel has enough eligible videos. Check config.yaml (channels, age window).")
+        raise SystemExit("No channel has enough eligible videos. Check channels.local.yaml (channels) and config.yaml (age window).")
     out = pd.concat(parts).reset_index(drop=True)
     out.to_csv(cfg["interim"] / "labeled.csv", index=False)
     print(f"  {out.channel_handle.nunique()} channels · labels:", out["label"].value_counts().to_dict())

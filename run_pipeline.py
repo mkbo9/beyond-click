@@ -2,7 +2,7 @@
 
   uv run python run_pipeline.py --fake --until m2   # offline test of M1–M2 (no API key, no models)
   uv run python run_pipeline.py --fake              # offline test of the whole chain
-  uv run python run_pipeline.py                     # real run with config.yaml
+  uv run python run_pipeline.py                     # real run: config.yaml + channels.local.yaml
   uv run python run_pipeline.py --from m4           # restart from a step (earlier outputs are reused)
 
 Fake runs write only into the hidden folder .fake_run/ and never touch real data.
@@ -30,6 +30,10 @@ if __name__ == "__main__":
     cfg = config.load(fake=args.fake)
     if cfg["mode"] == "fake":
         print(f"FAKE RUN: test data only, everything goes to {cfg['base']}")
+        
+    else:
+        print(f"REAL RUN: {len(cfg['channels'])} channels from {cfg['channels_source']}")  # count only, no handles
+        
     keys = [k for k, _, _ in STEPS]
     total = time.time()
     for key, name, module_name in STEPS[keys.index(args.start):keys.index(args.until) + 1]:
