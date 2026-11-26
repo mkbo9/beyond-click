@@ -1,0 +1,9 @@
+# Real channel list (template). This example file is in git; your copy is not.
+#   cp channels.local.example.yaml channels.local.yaml
+# Then replace the placeholders in channels.local.yaml with real @handles.
+# channels.local.yaml is git-ignored: never commit it, never copy handles into config.yaml.
+# Order = public alias: 1st handle = ch01, 2nd = ch02, ...
+channels:
+  - "@REPLACE_ME_1"
+  - "@REPLACE_ME_2"
+  - "@REPLACE_ME_3"

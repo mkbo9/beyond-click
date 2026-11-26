@@ -10,14 +10,15 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
-from .config import rel_path
+#from .config import rel_path
+from .config import rel_path, require_real_channels
 
 
 def _channel_uploads(yt, handle):
     # 1 unit: channel handle (@name) → channel title + its "uploads" playlist id
     r = yt.channels().list(part="contentDetails,snippet", forHandle=handle).execute()
     if not r.get("items"):
-        raise SystemExit(f"Channel not found: {handle}. Check the @handle in config.yaml.")
+        raise SystemExit(f"Channel not found: {handle}. Check the @handle in channels.local.yaml.") #@handle in config.yaml.
     item = r["items"][0]
     return item["snippet"]["title"], item["contentDetails"]["relatedPlaylists"]["uploads"]
 
@@ -100,8 +101,9 @@ def run(cfg) -> pd.DataFrame:
     key = os.environ.get("YOUTUBE_API_KEY", "")
     if not key or key.startswith("paste_"):
         raise SystemExit("No API key: put YOUTUBE_API_KEY=<your key> into the .env file in the repo root.")
-    if any("REPLACE_ME" in h for h in cfg["channels"]):
-        raise SystemExit("Put your channel @handles into config.yaml → channels.")
+    #if any("REPLACE_ME" in h for h in cfg["channels"]):
+    #    raise SystemExit("Put your channel @handles into config.yaml → channels.")
+    require_real_channels(cfg)                          # stops if only placeholders are set
     import isodate
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
