@@ -5,7 +5,7 @@ analysis_version: 1
 mode: real                 # real = YouTube Data API + models · fake = offline test data (written to .fake_run/)
 seed: 42
 niche: unboxing
-device: cpu                # cpu 
+device: auto               # cpu | xpu | cuda | auto (auto = xpu if available, else cpu)
 
 # --- M1 Collect ---------------------------------------------------------------
 # M0 needs at least 3 channels (M6 tests on channels the model never saw).
@@ -33,22 +33,19 @@ kmeans_k_range: [3, 12]     # M0: 3–12 · full run: [10, 25]
 channel_dominated_share: 0.60   # a group is "one channel's look" if one channel supplies more than this
 
 # --- M4 Describe --------------------------------------------------------------
-use_vlm: true               # false = skip SmolVLM2, name groups by hand in data/processed/group_names.csv
+use_vlm: false              # false = skip SmolVLM2, name groups by hand in data/processed/group_names.csv
 vlm_model: HuggingFaceTB/SmolVLM2-2.2B-Instruct
 vlm_image_edge: 384         # one patch per thumbnail (fast)
 vlm_image_splitting: false
 images_per_group: 6
 vlm_prompt: "These YouTube thumbnails belong to one visual group. In under 8 words, name the visual elements they share (people, objects, text, layout, colours)."
-# Each element = [describes it, describes its absence]. CLIP decides which fits better.
+# Each element = [describes it, describes an alternative]. CLIP decides which fits better.
 elements:
-  face:           ["a thumbnail showing a person's face", "a thumbnail with no people"]
-  surprised_face: ["a thumbnail of a person with a surprised face", "a thumbnail of a person with a calm face"]
-  big_text:       ["a thumbnail with large bold text", "a thumbnail with no text"]
-  arrow_circle:   ["a thumbnail with a red arrow or circle", "a thumbnail without arrows or circles"]
-  product:        ["a thumbnail showing a product or gadget", "a thumbnail with no product"]
-  product_in_hand: ["a person holding a product in their hands", "a product on a table, no hands"]
-  open_box:       ["an open box or packaging", "no box or packaging"]
-  bright_colours: ["a very colourful, saturated image", "a dull, muted image"]
+  face:            ["a thumbnail with a real person's face", "a thumbnail showing only gadgets or screens"]
+  big_text:        ["a thumbnail with large bold text", "a thumbnail with no text"]
+  product_in_hand: ["a hand holding a gadget up to the camera", "a gadget lying on a table"]
+  open_box:        ["an open box or packaging", "no box or packaging"]
+  bright_colours:  ["a very colourful, saturated image", "a dull, muted image"]
 element_min_share: 0.05     # elements present in fewer / more thumbnails than this are "uninformative"
 element_max_share: 0.95
 

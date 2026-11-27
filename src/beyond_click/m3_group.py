@@ -27,13 +27,18 @@ def pad_square(img: Image.Image) -> Image.Image:
     return canvas
 
 
-def clip_fingerprints(paths, cfg) -> np.ndarray:
+def load_clip(cfg):
+    """Load OpenCLIP once → (model, preprocess, device). smoke/t2_clip.py reuses it to time loading apart."""
     import open_clip
-    import torch
     device = pick_device(cfg)
     # first run downloads the CLIP weights (~600 MB) to ~/.cache; later runs reuse them
     model, _, preprocess = open_clip.create_model_and_transforms(cfg["clip_model"], pretrained=cfg["clip_pretrained"])
-    model = model.to(device).eval()                # inference only: CLIP is never trained here
+    return model.to(device).eval(), preprocess, device   # eval = inference only: CLIP is never trained here
+
+
+def clip_fingerprints(paths, cfg, clip=None) -> np.ndarray:
+    import torch
+    model, preprocess, device = clip or load_clip(cfg)   # clip = already loaded model (optional)
     feats = []
     with torch.no_grad():                          # no gradients → faster, less memory
         for i in range(0, len(paths), cfg["batch_size"]):

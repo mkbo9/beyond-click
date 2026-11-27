@@ -65,11 +65,16 @@ def charts(cfg, d, comp, pred):
         fig.write_html(cfg["out"] / "model.html", include_plotlyjs="cdn")
 
 
-def _img(cfg, r, blind=False) -> str:
+def _img(cfg, r, blind=False, caption=None) -> str:
     src = os.path.relpath(abs_path(cfg, r.thumb_path), cfg["out"])   # link from outputs/ to the image
     colour = "#ddd" if blind else BORDER.get(r.label, "#ddd")        # blind pages never reveal top/bottom
-    return (f"<img src='{src}' width='192' style='border:4px solid {colour};margin:3px' "
-            f"title='{html.escape(str(r.title))}'>")
+    img = (f"<img src='{src}' width='192' style='border:4px solid {colour};margin:3px' "
+           f"title='{html.escape(str(r.title))}'>")
+    if caption is None:
+        return img
+    # small text under the image (e.g. the element score); never top/bottom
+    return (f"<figure style='display:inline-block;margin:0 2px;text-align:center'>{img}"
+            f"<figcaption style='font-size:12px'>{html.escape(caption)}</figcaption></figure>")
 
 
 def _page(cfg, title, body, blind=False) -> str:
@@ -100,9 +105,15 @@ def element_gallery(cfg, d, n=10, blind=False, filename="elements.html"):
         share = el[f"has_{name}"].mean()
         parts.append(f"<h2>{html.escape(name)}</h2><p>present in {share:.0%} of thumbnails · "
                      f"phrases: {html.escape(' / '.join(cfg['elements'][name]))}</p>")
-        for title, part in (("Highest scores (should show it)", el.nlargest(n, f"p_{name}")),
-                            ("Lowest scores (should NOT show it)", el.nsmallest(n, f"p_{name}"))):
-            parts.append(f"<h4>{title}</h4><div>" + "".join(_img(cfg, r, blind) for r in part.itertuples()) + "</div>")
+        col = f"p_{name}"
+        # thumbnails whose score is closest to the 0.5 cut: shows whether the yes/no line is in the right place
+        near = el.loc[(el[col] - 0.5).abs().sort_values().index[:n]].sort_values(col, ascending=False)
+        for title, part in (("Highest scores (should show it)", el.nlargest(n, col)),
+                            ("Near the cut 0.5 (score above 0.5 = counted as present, below = absent)", near),
+                            ("Lowest scores (should NOT show it)", el.nsmallest(n, col))):
+            imgs = "".join(_img(cfg, r, blind, caption=f"{getattr(r, col):.2f} · {'yes' if getattr(r, col) > 0.5 else 'no'}")
+                           for r in part.itertuples())   # score + yes/no under every image
+            parts.append(f"<h4>{title}</h4><div>{imgs}</div>")
     (cfg["out"] / filename).write_text(_page(cfg, "Elements: do the scores match what you see?", "".join(parts), blind))
 
 

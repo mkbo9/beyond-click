@@ -71,3 +71,9 @@ def test_tracked_config_has_only_placeholders():
 
 
 
+
+
+def test_cpu_device_needs_no_torch(monkeypatch):
+    """device: cpu must work without importing torch (fake runs and tests have no torch)."""
+    monkeypatch.setitem(sys.modules, "torch", None)   # any 'import torch' would now fail
+    assert config.pick_device({"device": "cpu"}) == "cpu"

@@ -73,9 +73,13 @@ def rel_path(cfg: dict, p: Path) -> str:
 def pick_device(cfg: dict) -> str:
     """config 'device': cpu (default) | xpu (Intel GPU) | cuda (NVIDIA GPU) | auto (best available)."""
     want = cfg.get("device", "cpu")
-    if want != "auto":
-        return want
+    if want == "cpu":
+        return "cpu"
     import torch
-    if hasattr(torch, "xpu") and torch.xpu.is_available():
-        return "xpu"
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    xpu = hasattr(torch, "xpu") and torch.xpu.is_available()
+    cuda = torch.cuda.is_available()
+    if want == "auto":
+        return "xpu" if xpu else ("cuda" if cuda else "cpu")
+    if (want == "xpu" and not xpu) or (want == "cuda" and not cuda):   # clear message instead of a late crash
+        raise SystemExit(f"device: {want} is set in config.yaml, but torch cannot use it here. Set device: cpu.")
+    return want
