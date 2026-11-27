@@ -4,7 +4,7 @@ analysis_version: 1
 
 mode: real                 # real = YouTube Data API + models · fake = offline test data (written to .fake_run/)
 seed: 42
-niche: unboxing
+niche: consumer tech review / unboxing
 device: auto               # cpu | xpu | cuda | auto (auto = xpu if available, else cpu)
 
 # --- M1 Collect ---------------------------------------------------------------
@@ -46,6 +46,9 @@ elements:
   product_in_hand: ["a hand holding a gadget up to the camera", "a gadget lying on a table"]
   open_box:        ["an open box or packaging", "no box or packaging"]
   bright_colours:  ["a very colourful, saturated image", "a dull, muted image"]
+# Element cut: calibrated on hand labels (outputs/label_elements.html → data/processed/element_labels.csv).
+label_sample_n: 40          # thumbnails to mark by hand (random, fixed seed)
+element_min_agreement: 0.75 # below this agreement with the hand labels → element "unreliable", not compared
 element_min_share: 0.05     # elements present in fewer / more thumbnails than this are "uninformative"
 element_max_share: 0.95
 

@@ -17,7 +17,7 @@ if sys.version_info[:2] < (3, 12):
     print("  FAIL: need Python 3.12 or newer")
     ok = False
 
-# libraries needed by chat 02 (M1, M2) and the fake chain
+# libraries needed by M1, M2 and the fake chain
 for name in ["pandas", "numpy", "yaml", "dotenv", "requests", "isodate", "googleapiclient",
              "PIL", "sklearn", "scipy"]:
     try:

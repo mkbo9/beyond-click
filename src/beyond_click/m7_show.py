@@ -10,7 +10,7 @@ import os
 import pandas as pd
 
 from .config import abs_path
-from .m4_describe import group_labels
+from .m4_describe import group_labels, load_cuts
 from .store import load_labeled, merge_checked
 
 BLUE, ORANGE, GRAY = "#2563eb", "#ea580c", "#9ca3af"
@@ -98,20 +98,22 @@ def gallery(cfg, d, n=12, blind=False, filename="gallery.html"):
 
 
 def element_gallery(cfg, d, n=10, blind=False, filename="elements.html"):
-    """Per element: the thumbnails scored highest and lowest. Use it to check the element scores by eye."""
+    """Per element: the thumbnails scored highest, nearest the cut and lowest. Use it to check the scores by eye."""
     el = merge_checked(d, cfg, "elements.csv", "m4")
+    cuts = load_cuts(cfg)
     parts = []
     for name in cfg["elements"]:
         share = el[f"has_{name}"].mean()
-        parts.append(f"<h2>{html.escape(name)}</h2><p>present in {share:.0%} of thumbnails · "
+        cut, status = cuts[name]["cut"], cuts[name]["status"]
+        parts.append(f"<h2>{html.escape(name)}</h2><p>present in {share:.0%} of thumbnails · cut {cut:.3f} ({status}) · "
                      f"phrases: {html.escape(' / '.join(cfg['elements'][name]))}</p>")
         col = f"p_{name}"
-        # thumbnails whose score is closest to the 0.5 cut: shows whether the yes/no line is in the right place
-        near = el.loc[(el[col] - 0.5).abs().sort_values().index[:n]].sort_values(col, ascending=False)
+        # thumbnails whose score is closest to the cut: shows whether the yes/no line is in the right place
+        near = el.loc[(el[col] - cut).abs().sort_values().index[:n]].sort_values(col, ascending=False)
         for title, part in (("Highest scores (should show it)", el.nlargest(n, col)),
-                            ("Near the cut 0.5 (score above 0.5 = counted as present, below = absent)", near),
+                            (f"Near the cut {cut:.3f} (score above the cut = counted as present, below = absent)", near),
                             ("Lowest scores (should NOT show it)", el.nsmallest(n, col))):
-            imgs = "".join(_img(cfg, r, blind, caption=f"{getattr(r, col):.2f} · {'yes' if getattr(r, col) > 0.5 else 'no'}")
+            imgs = "".join(_img(cfg, r, blind, caption=f"{getattr(r, col):.2f} · {'yes' if getattr(r, col) > cut else 'no'}")
                            for r in part.itertuples())   # score + yes/no under every image
             parts.append(f"<h4>{title}</h4><div>{imgs}</div>")
     (cfg["out"] / filename).write_text(_page(cfg, "Elements: do the scores match what you see?", "".join(parts), blind))

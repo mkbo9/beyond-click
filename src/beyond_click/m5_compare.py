@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from .m4_describe import group_labels
+from .m4_describe import group_labels, load_cuts
 from .store import load_labeled, merge_checked
 
 
@@ -76,11 +76,15 @@ def run(cfg) -> pd.DataFrame:
                             ci_low=lo, ci_high=hi, p=p, channels=len(D), channels_positive=(D > 0).sum(0),
                             largest_channel_share=np.round(largest, 2)))
     informative = (share >= cfg["element_min_share"]) & (share <= cfg["element_max_share"])
+    # elements whose cut agrees too little with the hand marks: their yes/no is mostly CLIP's error → not compared
+    cuts = load_cuts(cfg)
+    unreliable = np.array([k == "element" and cuts[nm]["status"] == "unreliable" for k, nm in zip(kinds, names)])
+    tested = informative & ~unreliable
     out["q"] = np.nan
-    out.loc[informative, "q"] = bh(out.p[informative])       # only informative features count as tests
+    out.loc[tested, "q"] = bh(out.p[tested])                 # only compared features count as tests
     sig = out.q < cfg["fdr_alpha"]
-    out["verdict"] = np.select([~informative, sig & (out.ci_low > 0), sig & (out.ci_high < 0)],
-                               ["uninformative", "more in top", "more in bottom"], "unclear")
+    out["verdict"] = np.select([unreliable, ~informative, sig & (out.ci_low > 0), sig & (out.ci_high < 0)],
+                               ["unreliable", "uninformative", "more in top", "more in bottom"], "unclear")
     out.round(4).to_csv(cfg["out"] / "compare.csv", index=False)
     print(out[["kind", "name", "effect", "ci_low", "ci_high", "q", "verdict"]].round(3).to_string(index=False))
     return out
