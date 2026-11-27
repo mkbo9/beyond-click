@@ -41,3 +41,23 @@ def test_missing_fingerprint_is_caught(cfg):
 def test_labels_are_balanced_per_channel(cfg):
     counts = load_labeled(cfg).groupby("channel_handle").label.value_counts().unstack()
     assert (counts["top"] == counts["bottom"]).all()
+
+
+def test_blind_check_pages_hide_top_bottom(cfg):
+    """M4 check pages must never reveal top/bottom (frame colours), and show the near-cut row with scores."""
+    from beyond_click import m4_describe
+    from beyond_click.m7_show import BORDER
+    m4_describe.run(cfg)
+    for name in ("check_groups.html", "check_elements.html"):
+        page = (cfg["out"] / name).read_text()
+        assert not any(colour in page for colour in BORDER.values()), f"{name} shows top/bottom colours"
+    elements = (cfg["out"] / "check_elements.html").read_text()
+    assert elements.count("Near the cut") == len(cfg["elements"])   # one near-cut row per element
+    assert "· yes<" in elements and "· no<" in elements             # score + yes/no under the images
+
+
+def test_elements_have_no_product_and_two_phrases():
+    """Every element is a pair [phrase, alternative]; 'product' is not an element (in almost every thumbnail)."""
+    els = config.load(fake=True)["elements"]
+    assert "product" not in els
+    assert all(isinstance(p, list) and len(p) == 2 for p in els.values())

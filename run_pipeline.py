@@ -29,7 +29,7 @@ if __name__ == "__main__":
     args = ap.parse_args()
     cfg = config.load(fake=args.fake)
     if cfg["mode"] == "fake":
-        print(f"FAKE RUN: test data only, everything goes to {cfg['base']}")
+        print(f"FAKE RUN: test data only, everything goes to {cfg['base'].relative_to(cfg['root'])}/")
         
     else:
         print(f"REAL RUN: {len(cfg['channels'])} channels from {cfg['channels_source']}")  # count only, no handles
@@ -46,4 +46,4 @@ if __name__ == "__main__":
         except PipelineMismatch as e:               # files from different runs were mixed
             raise SystemExit(f"STOPPED: {e}")
         print(f"  done in {time.time() - t:.1f} s")
-    print(f"\nDone in {time.time() - total:.1f} s · outputs in {cfg['out']}")
+    print(f"\nDone in {time.time() - total:.1f} s · outputs in {cfg['out'].relative_to(cfg['root'])}/")

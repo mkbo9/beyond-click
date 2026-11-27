@@ -37,3 +37,8 @@ docs/*.md
 .fake_run/
 code.zip
 *:Zone.Identifier
+
+
+# local machine checks
+smoke/t2_clip.py
+smoke/t2b_device.py
