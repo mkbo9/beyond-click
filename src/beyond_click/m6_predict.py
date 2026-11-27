@@ -7,6 +7,7 @@ Score : AUC per test channel, then averaged (0.5 = coin flip, 1.0 = perfect). Th
 Checks: shuffled labels, 20 times (must average ~0.5) · a model using only the element scores
         · the same model on raw fingerprints (shows how much the channel look disturbs).
 Writes (docs/INTERFACES.md): outputs/predict_scores.csv · data/processed/predictions.csv
+At the end it trains the checker on all top/bottom thumbnails → models/checker.joblib (see checker.py).
 """
 import numpy as np
 import pandas as pd
@@ -80,4 +81,6 @@ def run(cfg) -> pd.DataFrame:
     out = pd.DataFrame(results).round(3)
     out.to_csv(cfg["out"] / "predict_scores.csv", index=False)
     print(out.to_string(index=False))
+    from .checker import train                  # final model for scoring new thumbnails (every run retrains it)
+    train(cfg)
     return out

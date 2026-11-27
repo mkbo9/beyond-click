@@ -140,7 +140,7 @@ def run(cfg) -> pd.DataFrame:
             live = reasons.get("live stream or premiere", 0)
             if live > 0.15 * (kept + sum(reasons.values())):
                 print(f"    note: {live} live/premiere videos dropped on this channel; "
-                      "if these are mostly normal premieres, tell 00 Master.")
+                      "if these are mostly normal premieres, review the premiere rule before the analysis is frozen.")
     except HttpError as e:
         raise SystemExit(_explain_api_error(e))
     df = pd.DataFrame(rows)
